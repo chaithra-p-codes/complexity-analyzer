@@ -1,9 +1,10 @@
 {
-  "name": "complexity-analyzer",
-  "displayName": " Complexity Analyzer",
+  "name": "chaithra-p-codes-complexity-analyzer",
+  "displayName": " Smart Complexity Analyzer",
   "description": "Step-by-step time & space complexity analysis for JavaScript, TypeScript, Python, Java, C, and C++",
   "version": "1.0.0",
-  "publisher": "chaithra-p-codesvsc",
+  "publisher": "chaithra-p-codes",
+  "icon": "media/icon.png",
   "repository": {
   "type": "git",
   "url": "https://github.com/chaithra-p-codes/complexity-analyzer"},
