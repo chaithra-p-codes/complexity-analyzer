@@ -2,15 +2,30 @@
   "name": "chaithra-p-codes-complexity-analyzer",
   "displayName": " Smart Complexity Analyzer",
   "description": "Step-by-step time & space complexity analysis for JavaScript, TypeScript, Python, Java, C, and C++",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "chaithra-p-codes",
   "icon": "media/icon.png",
   "repository": {
-  "type": "git",
-  "url": "https://github.com/chaithra-p-codes/complexity-analyzer"},
-  "engines": { "vscode": "^1.74.0" },
-  "categories": ["Other", "Programming Languages"],
-  "keywords": ["complexity", "big-o", "time complexity", "algorithm", "performance", "python", "java", "cpp"],
+    "type": "git",
+    "url": "https://github.com/chaithra-p-codes/complexity-analyzer"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "complexity",
+    "big-o",
+    "time complexity",
+    "algorithm",
+    "performance",
+    "python",
+    "java",
+    "cpp"
+  ],
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:typescript",
