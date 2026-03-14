@@ -5,6 +5,11 @@
 No extensions like this explain the *why* behind complexity. This one does.
 
 ---
+##  Download Extension
+
+Download the latest version here:
+
+https://github.com/chaithra-p-codes/complexity-analyzer/releases
 
 ## Features
 
@@ -72,23 +77,29 @@ function findDuplicates(arr) {
 
 ---
 
-## Installation (Development)
+##  Installation
 
-```bash
-# 1. Clone / download the project
-cd complexity-analyzer
+### Install the Extension
 
-# 2. Install VS Code Extension CLI
-npm install -g @vscode/vsce
+1. Go to the Releases page
 
-# 3. Package it
-vsce package
+https://github.com/chaithra-p-codes/complexity-analyzer/releases
 
-# 4. Install the .vsix file
-# VS Code → Extensions → ⋯ → Install from VSIX
-```
+2. Download the file:
 
----
+complexity-analyzer-1.0.0.vsix
+
+3. Open VS Code
+
+4. Go to Extensions
+
+5. Click the ⋯ (three dots) menu in the Extensions panel
+
+6. Select "Install from VSIX"
+
+7. Choose the downloaded .vsix file
+
+The Complexity Analyzer extension will now be installed in VS Code.
 
 ## Built With
 
