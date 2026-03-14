@@ -1,0 +1,75 @@
+{
+  "name": "complexity-analyzer",
+  "displayName": " Complexity Analyzer",
+  "description": "Step-by-step time & space complexity analysis for JavaScript, TypeScript, Python, Java, C, and C++",
+  "version": "1.0.0",
+  "publisher": "chaithra-p-codesvsc",
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/chaithra-p-codes/complexity-analyzer"},
+  "engines": { "vscode": "^1.74.0" },
+  "categories": ["Other", "Programming Languages"],
+  "keywords": ["complexity", "big-o", "time complexity", "algorithm", "performance", "python", "java", "cpp"],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:python",
+    "onLanguage:java",
+    "onLanguage:c",
+    "onLanguage:cpp"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "complexityAnalyzer.analyze",
+        "title": " Analyze Time Complexity",
+        "category": "Complexity Analyzer"
+      },
+      {
+        "command": "complexityAnalyzer.analyzeSelection",
+        "title": "Analyze Selected Code",
+        "category": "Complexity Analyzer"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "complexityAnalyzer.analyze",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == python || editorLangId == java || editorLangId == c || editorLangId == cpp",
+          "group": "navigation"
+        },
+        {
+          "command": "complexityAnalyzer.analyzeSelection",
+          "when": "editorHasSelection && (editorLangId == javascript || editorLangId == typescript || editorLangId == python || editorLangId == java || editorLangId == c || editorLangId == cpp)",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "complexityAnalyzer.analyze",
+        "key": "ctrl+shift+x",
+        "mac": "cmd+shift+x",
+        "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == python || editorLangId == java || editorLangId == c || editorLangId == cpp"
+      }
+    ],
+    "configuration": {
+      "title": "Complexity Analyzer",
+      "properties": {
+        "complexityAnalyzer.showInlineDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show complexity hints inline in the editor"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@vscode/vsce": "^2.0.0"
+  }
+}
