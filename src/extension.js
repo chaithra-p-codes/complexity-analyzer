@@ -44,6 +44,7 @@ function runAnalysis(context, selectionOnly) {
   if (!editor) { vscode.window.showErrorMessage(' No active editor found!'); return; }
 
   const langId = editor.document.languageId;
+  console.log('Detected language: ',langId);
   if (!SUPPORTED_LANGUAGES[langId]) {
     const supported = Object.values(SUPPORTED_LANGUAGES).map(l => l.label).join(', ');
     vscode.window.showWarningMessage(`Complexity Analyzer supports: ${supported}`);
@@ -73,6 +74,11 @@ function runAnalysis(context, selectionOnly) {
   }
 
   const config = vscode.workspace.getConfiguration('complexityAnalyzer');
+  if (!result || !result.steps) {
+  vscode.window.showErrorMessage('Analysis failed — could not parse code structure.');
+  return;
+}
+if (config.get('showInlineDecorations', true)) applyDecorations(editor, result);
   if (config.get('showInlineDecorations', true)) applyDecorations(editor, result);
 
   showWebviewPanel(context, result, langId);
@@ -83,7 +89,7 @@ function runAnalysis(context, selectionOnly) {
 function applyDecorations(editor, result) {
   const byType = { low: [], medium: [], high: [], critical: [] };
 
-  for (const step of result.steps) {
+  for (const step of result.steps || []) {
     const lineIndex = step.lineNum - 1;
     if (lineIndex < 0 || lineIndex >= editor.document.lineCount) continue;
     const line = editor.document.lineAt(lineIndex);

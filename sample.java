@@ -2,7 +2,7 @@
 import java.util.HashMap;
 import java.util.Arrays;
 
-public class Sample {
+public class sample {
 
     // O(1)
     public int getFirst(int[] arr) {
@@ -15,6 +15,7 @@ public class Sample {
         for (int i = 1; i < arr.length; i++) {
             if (arr[i] > max) max = arr[i];
         }
+       
         return max;
     }
 
@@ -51,5 +52,20 @@ public class Sample {
     // O(n log n)
     public void sortArray(int[] arr) {
         Arrays.sort(arr);
+    }
+    public int binarySearch(int arr[],int target)
+    {
+        int low=0,high=arr.length-1,mid;
+        while(low<=high)
+        {
+            mid=(low+(high-low))/2;
+            if(arr[mid]==target)
+                return mid;
+            else if(arr[mid]<target)
+                low=mid+1;
+            else
+                high=mid-1;
+        }
+        return -1;
     }
 }

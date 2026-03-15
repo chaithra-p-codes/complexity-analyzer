@@ -2,7 +2,7 @@ function getWebviewContent(result, langInfo) {
 
 const { functions = [], overallTimeComplexity, overallSpaceComplexity, tips = [], language } = result;
 
-/* ---------- Find worst function ---------- */
+// Find worst function
 
 let worstFunction = null;
 
@@ -12,7 +12,7 @@ if (functions.length > 0) {
   }, functions[0]);
 }
 
-/* ---------- Function cards ---------- */
+//Function cards
 
 const funcCardsHTML = functions.map(fn => {
 
@@ -78,7 +78,7 @@ ${stepsHTML}
 
 }).join("");
 
-/* ---------- Tips ---------- */
+// Tips
 
 const tipsHTML = tips.length > 0
 ? `
@@ -96,7 +96,7 @@ ${t.example ? `<pre class="tip-code">${escapeHtml(t.example)}</pre>` : ""}
 `
 : "";
 
-/* ---------- HTML ---------- */
+//HTML
 
 return `
 <!DOCTYPE html>
@@ -415,8 +415,6 @@ ${tipsHTML}
 `;
 
 }
-
-/* ---------- helpers ---------- */
 
 function escapeHtml(str){
 return String(str)
