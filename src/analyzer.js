@@ -1,5 +1,4 @@
-//Complexity Analyzer 
-
+//Complexity Analyzer Engine 
 const COMPLEXITY_ORDER = [
   'O(1)', 'O(log n)', 'O(n)', 'O(n log n)',
   'O(n^2)', 'O(n^3)', 'O(V + E)', 'O(2^n)', 'O(n!)'
@@ -24,7 +23,7 @@ function getSeverity(c) {
   return 'critical';
 }
 
-//Algorithm Pattern Detector 
+// Algorithm Pattern Detector 
 
 function detectAlgorithmPatterns(body) {
   const detected = [];
@@ -141,7 +140,7 @@ function detectAlgorithmPatterns(body) {
   return detected;
 }
 
-//Language Patterns 
+//Language Patterns
 
 const LANGUAGE_PATTERNS = {
   javascript: {
@@ -217,7 +216,7 @@ const LANGUAGE_PATTERNS = {
     search: [{ regex: /\bbsearch\s*\(/, label: 'bsearch()', note: 'O(log n)' }],
     hashDS: [],
     logOp:  [{ regex: /\blog\s*\(|\blog2\s*\(/, label: 'log()' }],
-    funcDecl: /^[\w\s\*]+\s+(\w+)\s*\([^)]*\)\s*\{?/,
+    funcDecl: /^(?:void|int|char|float|double|long|short|unsigned|struct\s+\w+|\w+)\s+(\w+)\s*\([^)]*\)\s*\{?/,
     comment: line => line.trim().startsWith('//') || line.trim().startsWith('*'),
     isPython: false,
   },
@@ -236,7 +235,7 @@ const LANGUAGE_PATTERNS = {
     ],
     hashDS: [{ regex: /unordered_map|unordered_set/, label: 'unordered_map/set' }],
     logOp:  [{ regex: /\blog\s*\(|\blog2\s*\(/, label: 'log()' }],
-    funcDecl: /^(?:[\w:<>*&\s]+)\s+(\w+)\s*\([^)]*\)\s*(?:const\s*)?\{?/,
+    funcDecl: /^(?:void|int|char|float|double|long|auto|bool|unsigned|\w+(?:::\w+)*)\s+(\w+)\s*\([^)]*\)\s*(?:const\s*)?\{?/,
     comment: line => line.trim().startsWith('//') || line.trim().startsWith('*'),
     isPython: false,
   }
@@ -244,7 +243,7 @@ const LANGUAGE_PATTERNS = {
 
 LANGUAGE_PATTERNS.typescript = { ...LANGUAGE_PATTERNS.javascript };
 
-// Function Extraction 
+//Function Extraction
 
 function extractFunctions(lines, lang) {
   const patterns = LANGUAGE_PATTERNS[lang] || LANGUAGE_PATTERNS.javascript;
@@ -263,22 +262,19 @@ function extractFunctions(lines, lang) {
       const startLine = i;
       let depth = 0, endLine = i, foundOpen = false;
 
-      // Search for opening brace 
+      // Opening brace may be on same line or next line
       for (let j = i; j < Math.min(i + 3, lines.length); j++) {
         if (lines[j].includes('{')) { foundOpen = true; break; }
       }
 
       if (!foundOpen) { i++; continue; }
 
-      // Now counting braces to find closing
       for (let j = i; j < lines.length; j++) {
         for (const ch of lines[j]) {
           if (ch === '{') depth++;
           if (ch === '}') depth--;
         }
-        if (depth > 0 || (j === i && depth === 0 && !lines[j].includes('{'))) continue;
         if (depth === 0 && j > i) { endLine = j; break; }
-        if (depth === 0 && j === i) continue;
       }
 
       if (endLine > startLine) {
@@ -329,7 +325,7 @@ function extractPythonFunctions(lines) {
   return functions;
 }
 
-//Function Analyzer 
+//Function Analyzer
 
 function analyzeFunction(func, lang) {
   const { name, startLine, lines } = func;
@@ -342,7 +338,11 @@ function analyzeFunction(func, lang) {
   let loopStack = [];
 
   const bodyText = lines.join('\n');
-  const isRecursive = new RegExp(`\\b${name}\\s*\\(`).test(lines.slice(1).join('\n'));
+  const isEntryPoint = /^(main|Main|program|Program)$/.test(name);
+  const isRecursive = !isEntryPoint &&
+    new RegExp(`\\b${name}\\s*\\(`).test(lines.slice(1).join('\n'));
+
+  // Run algorithm detection on full body
   const detectedAlgorithms = detectAlgorithmPatterns(bodyText);
   const algorithmOverride = detectedAlgorithms.length > 0 ? detectedAlgorithms[0] : null;
 
@@ -355,7 +355,12 @@ function analyzeFunction(func, lang) {
       const o = (line.match(/\{/g) || []).length;
       const c = (line.match(/\}/g) || []).length;
       braceDepth += o - c;
+      // Pop loops that closed
       while (loopStack.length > 0 && braceDepth < loopStack[loopStack.length - 1]) {
+        loopStack.pop();
+      }
+      // Pop braceless loops immediately
+      while (loopStack.length > 0 && loopStack[loopStack.length - 1] === -1) {
         loopStack.pop();
       }
       continue;
@@ -365,10 +370,17 @@ function analyzeFunction(func, lang) {
     const closes = (line.match(/\}/g) || []).length;
     let annotated = false;
 
+    // ── Loops ──
     for (const p of patterns.loops) {
-      if (p.regex.test(line)) {
-        const depth = loopStack.length;
-        loopStack.push(braceDepth + opens);
+  if (p.regex.test(line)) {
+    // Pop any braceless loops still in stack BEFORE calculating depth
+    while (loopStack.length > 0 && loopStack[loopStack.length - 1] === -1) {
+      loopStack.pop();
+    }
+    const depth = loopStack.length;
+        const hasBrace = line.includes('{') ||
+          (i + 1 < lines.length && lines[i + 1].trim().startsWith('{'));
+        loopStack.push(hasBrace ? braceDepth + opens : -1);
 
         if (algorithmOverride) {
           annotated = true;
@@ -438,11 +450,24 @@ function analyzeFunction(func, lang) {
     }
 
     braceDepth += opens - closes;
-    while (loopStack.length > 0 && braceDepth < loopStack[loopStack.length - 1]) {
+    while (loopStack.length > 0 &&
+           loopStack[loopStack.length - 1] !== -1 &&
+           braceDepth < loopStack[loopStack.length - 1]) {
       loopStack.pop();
     }
+
+  
+ if (loopStack.length > 0 && loopStack[loopStack.length - 1] === -1) {
+  const isLoopLine = patterns.loops.some(p => p.regex.test(line));
+  if (!isLoopLine && trimmed && !trimmed.startsWith('{')) {
+    loopStack.pop();
+  } else if (isLoopLine) {
+    loopStack.pop();
+  }
+}
   }
 
+  // ── Add detected algorithm steps ──
   for (const algo of detectedAlgorithms) {
     steps.unshift({
       lineNum: startLine + 1,
@@ -453,6 +478,7 @@ function analyzeFunction(func, lang) {
       reason: algo.reason,
       severity: getSeverity(algo.complexity)
     });
+    // Algorithm overrides loop-based complexity
     timeComplexity = algo.complexity;
   }
 
@@ -500,8 +526,12 @@ function analyzeCode(code, lang = 'javascript') {
   const functions = extractFunctions(lines, normalizedLang);
   const analyzedFunctions = functions.map(fn => analyzeFunction(fn, normalizedLang));
 
-  const overallTimeComplexity = analyzedFunctions.reduce((w, f) => maxComplexity(w, f.timeComplexity), 'O(1)');
-  const overallSpaceComplexity = analyzedFunctions.reduce((w, f) => maxComplexity(w, f.spaceComplexity), 'O(1)');
+  const overallTimeComplexity = analyzedFunctions.reduce(
+    (w, f) => maxComplexity(w, f.timeComplexity), 'O(1)'
+  );
+  const overallSpaceComplexity = analyzedFunctions.reduce(
+    (w, f) => maxComplexity(w, f.spaceComplexity), 'O(1)'
+  );
   const allSteps = analyzedFunctions.flatMap(f => f.steps);
 
   return {
@@ -511,11 +541,12 @@ function analyzeCode(code, lang = 'javascript') {
     overallTimeComplexity,
     overallSpaceComplexity,
     explanation: generateExplanation(overallTimeComplexity),
-    tips: generateTips(allSteps, overallTimeComplexity, analyzedFunctions.some(f => f.isRecursive), [])
+    tips: generateTips(allSteps, overallTimeComplexity,
+      analyzedFunctions.some(f => f.isRecursive), [])
   };
 }
 
-//Explanation & Tips 
+//Explanation & Tips
 
 function generateExplanation(c) {
   const map = {
@@ -535,16 +566,32 @@ function generateExplanation(c) {
 function generateTips(steps, overall, hasRecursion, detectedAlgorithms) {
   const tips = [];
   if (steps.some(s => s.type === 'loop' && s.nestingDepth >= 1)) {
-    tips.push({ icon: 'TIP', tip: 'Nested loops detected. Use a HashMap/Set to reduce O(n^2) to O(n).', example: 'const map = new Map();\nfor (const val of arr) {\n  if (map.has(target - val)) return true;\n  map.set(val, true);\n}' });
+    tips.push({
+      icon: 'TIP',
+      tip: 'Nested loops detected. Use a HashMap/Set to reduce O(n^2) to O(n).',
+      example: 'const map = new Map();\nfor (const val of arr) {\n  if (map.has(target - val)) return true;\n  map.set(val, true);\n}'
+    });
   }
   if (steps.some(s => s.type === 'search' && s.nestingDepth > 0)) {
-    tips.push({ icon: 'TIP', tip: 'Linear search inside a loop = O(n^2). Use a Set for O(1) lookups.', example: 'const set = new Set(arr);\nif (set.has(val)) { ... }' });
+    tips.push({
+      icon: 'TIP',
+      tip: 'Linear search inside a loop = O(n^2). Use a Set for O(1) lookups.',
+      example: 'const set = new Set(arr);\nif (set.has(val)) { ... }'
+    });
   }
   if (hasRecursion) {
-    tips.push({ icon: 'TIP', tip: 'Recursion without memoization = O(2^n). Cache results to get O(n).', example: 'const memo = {};\nfunction solve(n) {\n  if (memo[n]) return memo[n];\n  return memo[n] = solve(n-1) + solve(n-2);\n}' });
+    tips.push({
+      icon: 'TIP',
+      tip: 'Recursion without memoization = O(2^n). Cache results to get O(n).',
+      example: 'const memo = {};\nfunction solve(n) {\n  if (memo[n]) return memo[n];\n  return memo[n] = solve(n-1) + solve(n-2);\n}'
+    });
   }
   if (detectedAlgorithms && detectedAlgorithms.some(a => a.key === 'dynamicProgramming')) {
-    tips.push({ icon: 'TIP', tip: 'DP detected. Fill table bottom-up to avoid stack overflow.', example: 'for (let i = 1; i <= n; i++) {\n  dp[i] = dp[i-1] + dp[i-2];\n}' });
+    tips.push({
+      icon: 'TIP',
+      tip: 'DP detected. Fill table bottom-up to avoid stack overflow.',
+      example: 'for (let i = 1; i <= n; i++) {\n  dp[i] = dp[i-1] + dp[i-2];\n}'
+    });
   }
   return tips;
 }

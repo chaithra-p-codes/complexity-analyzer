@@ -7,6 +7,7 @@ public class sample {
     // O(1)
     public int getFirst(int[] arr) {
         return arr[0];
+        
     }
 
     // O(n)
