@@ -22,9 +22,6 @@ No extensions like this explain the *why* behind complexity. This one does.
 - Press `Ctrl+Shift+X` (or `Cmd+Shift+X` on Mac)
 - Or: Right-click → ** Analyze Time Complexity**
 
-### Analyze selected code
-- Select any block of code
-- Right-click → ** Analyze Selected Code**
 
 ---
 
