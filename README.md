@@ -1,4 +1,4 @@
-#  Complexity Analyzer
+# Smart Complexity Analyzer
 
 **Step-by-step time & space complexity analysis for Java, Python, C, C++, JavaScript & TypeScript code — right inside VS Code.**
 
@@ -72,21 +72,16 @@ function findDuplicates(arr) {
 
 ---
 
-## Installation (Development)
+## Installation
 
-```bash
-# 1. Clone / download the project
-cd complexity-analyzer
+1. Open **VS Code**
+2. Go to **Extensions Marketplace**
+3. Search for **Smart Complexity Analyzer**
+4. Click **Install**
 
-# 2. Install VS Code Extension CLI
-npm install -g @vscode/vsce
+Or install directly from the marketplace:
 
-# 3. Package it
-vsce package
-
-# 4. Install the .vsix file
-# VS Code → Extensions → ⋯ → Install from VSIX
-```
+https://marketplace.visualstudio.com/items?itemName=chaithra-p-codes.chaithra-p-codes-complexity-analyzer
 
 ---
 
@@ -101,4 +96,4 @@ vsce package
 ## Author
 **Chaithra P**
 - LinkedIn: https://www.linkedin.com/in/chaithra-p-codes 
-- Extension: [Complexity Analyzer on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=YOUR_PUBLISHER_ID.complexity-analyzer)
+- Extension: [Smart Complexity Analyzer on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=chaithra-p-codes.chaithra-p-codes-complexity-analyzer)
